@@ -11,5 +11,3 @@ license = "Apache-2.0"
 keywords = [ "moonbit" ]
 
 description = "One sentence saying what this is and what it is not."
-
-preferred_target = "wasm-gc"
