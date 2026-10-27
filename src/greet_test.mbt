@@ -3,5 +3,5 @@
 
 ///|
 test "it greets" {
-  assert_eq(@lib.greet("moonbit"), "hello, moonbit")
+  assert_eq(@CHANGE-ME.greet("moonbit"), "hello, moonbit")
 }
