@@ -8,7 +8,7 @@ repository = "https://github.com/moonbitstack/CHANGE-ME"
 
 license = "Apache-2.0"
 
-keywords = [ "moonbit" ]
+keywords = [ "moonbit", "CHANGE-ME" ]
 
 description = "One sentence saying what this is and what it is not."
 
