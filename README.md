@@ -20,6 +20,9 @@ Run `moon run src/examples/tour` for the whole surface in one go.
 4. Fill in `keywords` and `description` in `moon.mod`. The description is what
    mooncakes shows, so it says what the package is and what it is not.
 5. Write the specification link into every `moon.pkg`.
+6. Rename `docs/skills/CHANGE-ME/` to the library's name and write its `SKILL.md`:
+   how to add the library, the common tasks with code that compiles against the
+   published version, and the rules that catch people out.
 
 ## What is here and what is not
 
@@ -27,6 +30,7 @@ Run `moon run src/examples/tour` for the whole surface in one go.
 |:--|:--|
 | `.github/workflows/` | GitHub does not inherit workflows; every repository needs its own copy |
 | `moon.mod`, `src/`, `src/cmd/main/`, `src/examples/tour/` | Sources under `src/` so the root holds only entry points; the library is the root package, the binary and the examples sit beside it |
+| `docs/skills/` | The Agent Skill for the library, released with each version and carried inside the module |
 | `.gitignore`, `.moonignore` | The second one exists because `.gitignore`'s `!.git*` would otherwise pull the whole object database into a published tarball |
 | `LICENSE` | Apache-2.0, the same across the organisation |
 
@@ -52,7 +56,10 @@ without anyone saying so.
 
 Push a signed tag `v<version>`. `release.yml` runs the tests first and publishes
 only if they pass and the organisation variable `MOONCAKES_PUBLISH` is `true`.
-The major version stays at 0.
+Each skill under `docs/skills/` then goes to [mooncakes.io/skills](https://mooncakes.io/skills)
+at the same version, in a job of its own so that rerunning a failure does not
+publish the module twice. Releases cannot be overwritten or deleted, so a mistake
+means the next version. The major version stays at 0.
 
 ## Licence
 
