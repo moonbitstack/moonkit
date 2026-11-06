@@ -3,7 +3,7 @@
 One sentence saying what this is.
 
 ```moonbit
-@CHANGE-ME.greet("moonbit")
+println(@CHANGE-ME.greet("moonbit"))
 ```
 
 Run `moon run src/examples/tour` for the whole surface in one go.
