@@ -59,7 +59,7 @@ def blocks(path):
         if m.group(1) or "nocheck" in m.group(3):
             continue
         # The contents of a `moon.pkg` or `moon.mod` shown in a block are configuration, not code.
-        if re.match(r"\s*(import \{|options\(|name\s*=|pkgtype\()", m.group(4)):
+        if re.match(r"(?:\s*//[^\n]*\n)*\s*(import \{|options\(|name\s*=|pkgtype\()", m.group(4)):
             continue
         yield text[: m.start(4)].count("\n") + 1, "native" in m.group(3), m.group(4)
 
