@@ -31,6 +31,7 @@ CONFIG = re.compile(r"(?:\s*//[^\n]*\n)*\s*(import \{|options\(|name\s*=|pkgtype
 CORE = {"array", "bench", "bigint", "buffer", "builtin", "bytes", "char", "cmp", "coverage", "deque", "double", "encoding", "env", "error", "float", "hashmap", "hashset", "immut", "int", "int16", "int64", "json", "list", "math", "option", "queue", "quickcheck", "random", "rational", "ref", "result", "set", "sorted_map", "sorted_set", "strconv", "string", "test", "tuple", "uint", "uint16", "uint64", "unit"}
 NESTED = {"utf8": "encoding/utf8", "utf16": "encoding/utf16", "base64": "encoding/base64"}
 DECLARED = re.compile(r'"([\w\-/]+)"\s+@([a-z_][a-z0-9_]*)')
+ALL = ["wasm", "wasm-gc", "js", "native"]
 
 
 def module_info():
@@ -38,11 +39,27 @@ def module_info():
     name = re.search(r'name\s*=\s*"([^"]+)"', text).group(1)
     source = re.search(r'source\s*=\s*"([^"]+)"', text)
     deps = re.findall(r'"([\w-]+/[\w-]+)@[\d.]+"', text)
-    # A module that names the backends it has is checked on those, one at a time: `--target all`
-    # would ask for the ones it does not have.
-    declared = re.search(r'supported_targets\s*=\s*\[([^\]]*)\]', text)
-    targets = [t.strip().strip('"') for t in declared.group(1).split(",") if t.strip()] if declared else []
-    return name, ROOT / (source.group(1) if source else "."), deps, targets
+    src = ROOT / (source.group(1) if source else ".")
+    return name, src, deps, backends(src)
+
+
+def backends(src):
+    """The backends the root package has code on, each to be checked on its own; empty means all.
+
+    A file named under `targets` in its moon.pkg, or spelt `name.<backend>.mbt`, builds only there;
+    any other builds everywhere. A package with no code on wasm-gc, say, would fail every block there
+    with names it does not have, so those backends are left out rather than the whole module limited.
+    """
+    pkg = src / "moon.pkg"
+    text = pkg.read_text(encoding="utf-8") if pkg.exists() else ""
+    limited = {f: re.findall(r'"([\w-]+)"', ts) for f, ts in re.findall(r'"([^"/]+\.mbt)"\s*:\s*\[([^\]]*)\]', text)}
+    found = set()
+    for f in src.glob("*.mbt"):
+        if f.name.endswith(("_test.mbt", "_wbtest.mbt")):
+            continue
+        suffix = re.search(r"\.(native|js|wasm|wasm-gc)\.mbt$", f.name)
+        found |= set(limited.get(f.name, [suffix.group(1)] if suffix else ALL))
+    return [] if not found or found >= set(ALL) else [t for t in ALL if t in found]
 
 
 def packages(module, src, deps):
